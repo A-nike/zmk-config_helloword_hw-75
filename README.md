@@ -20,4 +20,3 @@ HW-75 由键盘主体 (Keyboard) 与扩展模块 (Dynamic) 组成。详细说明
 ## 协议
 
 [MIT License](LICENSE)
-# zmk-config_helloword_hw-75

@@ -1,0 +1,48 @@
+# HW-75 board configuration
+
+# Copyright (c) 2022-2023 XiNGRZ
+# SPDX-License-Identifier: MIT
+
+if BOARD_HW75_KEYBOARD
+
+config BOARD
+	default "hw75_keyboard"
+
+config ZMK_KEYBOARD_NAME
+	default "HelloWord HW-75 Keyboard"
+
+config ZMK_USB
+	default y
+
+choice ZMK_HID_REPORT_TYPE
+	default ZMK_HID_REPORT_TYPE_NKRO
+endchoice
+
+config ZMK_RGB_UNDERGLOW
+	default y
+	select WS2812_STRIP
+	select LED_STRIP
+	select SPI
+
+config ZMK_RGB_UNDERGLOW_EXT_POWER
+	default n
+
+config BUILD_OUTPUT_UF2
+	default y
+
+if BUILD_OUTPUT_UF2
+
+config BUILD_OUTPUT_UF2_FAMILY_ID
+	default "0x5ee21072"
+
+config BUILD_OUTPUT_UF2_USE_FLASH_BASE
+	default y
+
+config BUILD_OUTPUT_UF2_USE_FLASH_OFFSET
+	default y
+
+endif # BUILD_OUTPUT_UF2
+
+rsource "app/Kconfig"
+
+endif # BOARD_HW75_KEYBOARD
