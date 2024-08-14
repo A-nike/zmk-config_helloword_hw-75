@@ -15,7 +15,8 @@ jobs:
         include:
           - { board: hw75_keyboard@1.1, keymap: hw75_keyboard.keymap  }
           - { board: hw75_keyboard@1.2, keymap: hw75_keyboard.keymap  }
-          - { board: hw75_dynamic,      keymap: hw75_dynamic.keymap   }
+          - { board: hw75_dynamic@A,    keymap: hw75_dynamic.keymap   }
+          - { board: hw75_dynamic@B,    keymap: hw75_dynamic.keymap   }
 
     steps:
       - name: Prepare variables
@@ -28,7 +29,11 @@ jobs:
       - name: Set up build tools
         run: |
           apt-get update
-          apt-get install -y python3-pip protobuf-compiler
+          apt-get install -y python3-pip protobuf-compiler curl
+          curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+          apt-get install -y nodejs
+          pip install -U fonttools
+          npm install -g lv_font_conv
 
       - name: Cache west modules
         uses: actions/cache@v3.0.11
@@ -86,11 +91,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
           name: firmware
           path: firmware
+
+      - name: Prepare release notes
+        id: release
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "RELEASE_BODY<<$EOF" >> $GITHUB_OUTPUT
+          sed 's/{{TAG}}/${{ github.ref_name }}/g' .github/RELEASE_TEMPLATE.md >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Publish release
         uses: svenstaro/upload-release-action@v2
@@ -99,3 +115,6 @@ jobs:
           file_glob: true
           tag: ${{ github.ref }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            ${{ steps.release.outputs.RELEASE_BODY }}
+          prerelease: true
